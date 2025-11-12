@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
-import { getQuiz, submitQuiz } from '@/lib/api';
-import type { QuizWithQuestions, Question } from '@/lib/api';
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { getQuiz, submitQuiz } from "@/lib/api";
+import type { QuizWithQuestions } from "@/lib/api";
 
 export default function TakeQuizPage() {
   const router = useRouter();
@@ -15,7 +15,7 @@ export default function TakeQuizPage() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     loadQuiz();
@@ -27,7 +27,7 @@ export default function TakeQuizPage() {
       const data = await getQuiz(quizId);
       setQuiz(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load quiz');
+      setError(err instanceof Error ? err.message : "Failed to load quiz");
     } finally {
       setLoading(false);
     }
@@ -39,12 +39,16 @@ export default function TakeQuizPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!quiz) return;
 
-    const unanswered = quiz.questions.filter(q => !answers[q._id]);
+    const unanswered = quiz.questions.filter((q) => !answers[q._id]);
     if (unanswered.length > 0) {
-      if (!confirm(`You have ${unanswered.length} unanswered question(s). Submit anyway?`)) {
+      if (
+        !confirm(
+          `You have ${unanswered.length} unanswered question(s). Submit anyway?`
+        )
+      ) {
         return;
       }
     }
@@ -55,13 +59,15 @@ export default function TakeQuizPage() {
         quizId,
         Object.entries(answers).map(([questionId, answer]) => ({
           questionId,
-          answer
+          answer,
         }))
       );
-      
-      router.push(`/quiz/${quizId}/results?score=${submission.score}&maxScore=${submission.maxScore}&correct=${submission.correctAnswers}&total=${submission.totalQuestions}&percentage=${submission.percentage}`);
+
+      router.push(
+        `/quiz/${quizId}/results?score=${submission.score}&maxScore=${submission.maxScore}&correct=${submission.correctAnswers}&total=${submission.totalQuestions}&percentage=${submission.percentage}`
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit quiz');
+      setError(err instanceof Error ? err.message : "Failed to submit quiz");
     } finally {
       setSubmitting(false);
     }
@@ -120,7 +126,10 @@ export default function TakeQuizPage() {
         <form onSubmit={handleSubmit}>
           <div className="space-y-6">
             {quiz.questions.map((question, index) => (
-              <div key={question._id} className="bg-white rounded-lg shadow-md p-6">
+              <div
+                key={question._id}
+                className="bg-white rounded-lg shadow-md p-6"
+              >
                 <div className="mb-4">
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
                     Question {index + 1}
@@ -128,7 +137,7 @@ export default function TakeQuizPage() {
                   <p className="text-gray-700">{question.questionText}</p>
                 </div>
 
-                {question.questionType === 'mcq' && (
+                {question.questionType === "mcq" && (
                   <div className="space-y-2">
                     {question.options.map((option, optIndex) => (
                       <label
@@ -140,7 +149,9 @@ export default function TakeQuizPage() {
                           name={question._id}
                           value={option}
                           checked={answers[question._id] === option}
-                          onChange={(e) => handleAnswerChange(question._id, e.target.value)}
+                          onChange={(e) =>
+                            handleAnswerChange(question._id, e.target.value)
+                          }
                           className="mr-3"
                         />
                         <span className="text-gray-700">{option}</span>
@@ -149,15 +160,17 @@ export default function TakeQuizPage() {
                   </div>
                 )}
 
-                {question.questionType === 'truefalse' && (
+                {question.questionType === "truefalse" && (
                   <div className="space-y-2">
                     <label className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
                       <input
                         type="radio"
                         name={question._id}
                         value="true"
-                        checked={answers[question._id] === 'true'}
-                        onChange={(e) => handleAnswerChange(question._id, e.target.value)}
+                        checked={answers[question._id] === "true"}
+                        onChange={(e) =>
+                          handleAnswerChange(question._id, e.target.value)
+                        }
                         className="mr-3"
                       />
                       <span className="text-gray-700">True</span>
@@ -167,8 +180,10 @@ export default function TakeQuizPage() {
                         type="radio"
                         name={question._id}
                         value="false"
-                        checked={answers[question._id] === 'false'}
-                        onChange={(e) => handleAnswerChange(question._id, e.target.value)}
+                        checked={answers[question._id] === "false"}
+                        onChange={(e) =>
+                          handleAnswerChange(question._id, e.target.value)
+                        }
                         className="mr-3"
                       />
                       <span className="text-gray-700">False</span>
@@ -176,11 +191,13 @@ export default function TakeQuizPage() {
                   </div>
                 )}
 
-                {question.questionType === 'text' && (
+                {question.questionType === "text" && (
                   <input
                     type="text"
-                    value={answers[question._id] || ''}
-                    onChange={(e) => handleAnswerChange(question._id, e.target.value)}
+                    value={answers[question._id] || ""}
+                    onChange={(e) =>
+                      handleAnswerChange(question._id, e.target.value)
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter your answer"
                   />
@@ -195,7 +212,7 @@ export default function TakeQuizPage() {
               disabled={submitting}
               className="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg font-medium"
             >
-              {submitting ? 'Submitting...' : 'Submit Quiz'}
+              {submitting ? "Submitting..." : "Submit Quiz"}
             </button>
           </div>
         </form>
@@ -203,4 +220,3 @@ export default function TakeQuizPage() {
     </div>
   );
 }
-
